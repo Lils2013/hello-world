@@ -1,0 +1,16 @@
+user1
+-
+-
+kRZQRacwPZpu.
+user2
+-
+-
+pBYnhiYUVVwIE
+user3
+user2
+/home/user3cool
+GV3idqeZIG5pE
+user4
+user1,user2,user3
+/home/user4verycool
+.0kpbgKLwa4Jc
