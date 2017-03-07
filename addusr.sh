@@ -17,7 +17,10 @@ if [ $(id -u) -eq 0 ]; then
         else
             read -r line
             groups="$line"
-            if [ $groups == "-" ]; then
+	    if [ "$(echo "$groups" | tr -d '[:space:]')" = "" ]; then
+		echo "Enter groups!!"
+		exit 3
+            elif [ $groups == "-" ]; then
                 gr_arg="" #"-" means default: user belongs only to initial group
             else
                 for group in $(echo $groups | sed "s/,/ /g")
@@ -32,14 +35,22 @@ if [ $(id -u) -eq 0 ]; then
             fi
             read -r line
             path="$line"
-	    if [ $path == "-" ]; then
+	    if [ "$(echo "$path" | tr -d '[:space:]')" = "" ]; then
+		echo "Enter path!!"
+		exit 3
+	    elif [ $path == "-" ]; then
 		pa_arg="" #"-" means default: directory name is USERNAME, appended to BASE_DIR
 	    else
                 pa_arg="-d $path"
 	    fi
             read -r line
             pswd="$line"
-            ps_arg="-p $pswd"
+	    if [ "$(echo "$pswd" | tr -d '[:space:]')" = "" ]; then
+		echo "Enter a password!!!"
+		exit 3
+	    else
+            	ps_arg="-p $pswd"
+	    fi
         fi
         useradd $ps_arg $gr_arg $pa_arg $username
 	[ $? -eq 0 ] && echo "User has been added to system!" || echo "Failed to add a user!!!"
