@@ -10,49 +10,44 @@ if [ $(id -u) -eq 0 ]; then
     while read -r line
     do
         username="$line"        
-        egrep "^$username" /etc/passwd >/dev/null
+        getent passwd $username >/dev/null
         if [ $? -eq 0 ]; then
             echo "$username exists!"
             exit 1
         else
+            getent group $username >/dev/null
+	    if [ $? -eq 0 ]; then
+		home_group_exists="-g $username"
+	    else
+		home_group_exists=""
+	    fi
             read -r line
             groups="$line"
-	    if [ "$(echo "$groups" | tr -d '[:space:]')" = "" ]; then
-		echo "Enter groups!!"
-		exit 3
-            elif [ $groups == "-" ]; then
+            if [ $groups == "-" ]; then
                 gr_arg="" #"-" means default: user belongs only to initial group
             else
                 for group in $(echo $groups | sed "s/,/ /g")
                 do
-                    egrep "^$group" /etc/group >/dev/null
+                    getent group $group >/dev/null
                     if [ ! $? -eq 0 ]; then
-                        echo "$group is not in the group list!"
-                        exit 2
+                        echo "group $group doesn't exist! It will be added."
+			groupadd $group
                     fi
                 done
                 gr_arg="-G $groups"
             fi
             read -r line
             path="$line"
-	    if [ "$(echo "$path" | tr -d '[:space:]')" = "" ]; then
-		echo "Enter path!!"
-		exit 3
-	    elif [ $path == "-" ]; then
+	    if [ $path == "-" ]; then
 		pa_arg="" #"-" means default: directory name is USERNAME, appended to BASE_DIR
 	    else
                 pa_arg="-d $path"
 	    fi
             read -r line
             pswd="$line"
-	    if [ "$(echo "$pswd" | tr -d '[:space:]')" = "" ]; then
-		echo "Enter a password!!!"
-		exit 3
-	    else
-            	ps_arg="-p $pswd"
-	    fi
+            ps_arg="-p $pswd"
         fi
-        useradd $ps_arg $gr_arg $pa_arg $username
+        useradd $home_group_exists $ps_arg $gr_arg $pa_arg $username
 	[ $? -eq 0 ] && echo "User has been added to system!" || echo "Failed to add a user!!!"
     done < $filename
 else
