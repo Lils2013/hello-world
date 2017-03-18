@@ -30,7 +30,7 @@ if [ $(id -u) -eq 0 ]; then
                 do
                     getent group $group >/dev/null
                     if [ ! $? -eq 0 ]; then
-                        echo "group $group doesn't exist! It will be added."
+                        echo "group $group wasn't found! Group $group was added."
 			groupadd $group
                     fi
                 done
